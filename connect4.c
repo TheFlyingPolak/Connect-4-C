@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <unistd.h>
 
 #ifdef _WIN32
 #define clearScreen() system("cls")
@@ -11,9 +10,9 @@
 #define clearScreen() system("clear")
 #endif
 
-int move(char **board, int rows, int cols, int player);
-void printBoard(char **board, int rows, int cols);
-int scanBoard(char **board, int rows, int cols, short x, short y, int player);
+int move(char **board, int rows, int cols, int player);	// Facilitates each player's move
+void printBoard(char **board, int rows, int cols);	// Prints the board to console
+int scanBoard(char **board, int rows, int cols, short x, short y, int player);	// Checks if a winning situation is present
 
 int main(void){
 	int i, j, chipCount = 0;	// chipCount tracks the number of pieces on the board to detect when it is full
@@ -54,7 +53,7 @@ int main(void){
 		}
 	}
 	
-	/*	Run the game  */
+	/*	Simulate the game  */
 	while (game){
 		/*	Player 1 move  */
 		printBoard(board, rows, cols);
@@ -88,6 +87,7 @@ int main(void){
 		}
 	}
 	
+	/*	Ask the user to press ENTER key to exit  */
 	char ch[2];
 	puts("Press ENTER to exit");
 	gets(ch);
@@ -129,43 +129,47 @@ int move(char **board, int rows, int cols, int player){
 		case 2: board[i - 1][choice - 1] = 'o'; break;
 	}
 	
+	/*	Call the scanBoard function to check whether the player has won  */
 	return scanBoard(board, rows, cols, i - 1, choice - 1, player);
 }
 
+/*	This function prints the board to the console  */
 void printBoard(char **board, int rows, int cols){
 	int i, j, tmp;
 	
 	/*	Print all chips on the board and borders between columns  */
-	system("cls");
+	clearScreen();
 	for (i = 0; i < rows; i++){
-		printf("%c", 179);
+		printf("%c", '|');
 		for (j = 0; j < cols; j++){
-			printf("%c%c", board[i][j], 179);
+			printf("%c%c", board[i][j], '|');
 		}
 		printf("\n");
 	}
 	/*	Print the bottom border of the board  */
 	for (i = 0; i < cols; i++)
-		printf("%c%c", 205, 205);
-	printf("%c\n%c", 205, 179);
+		printf("%c%c", '-', '-');
+	printf("%c\n%c", '-', '|');
 	
 	/*	Print column numbers with borders  */
 	for (i = 1; i <= cols; i++){
 		tmp = i;
 		while (tmp >= 10)
 			tmp /= 10;
-		printf("%d%c", tmp, 179);
+		printf("%d%c", tmp, '|');
 	}
 	printf("\n");
+	/*	If there are 2 digit column numbers, print the second digit of each number below  */
 	for (i = 1; i <= cols; i++){
 		if (i >= 10)
-			printf("%d ", i % 10);
+			printf(" %d", i % 10);
 		else
 			printf("  ");
 	}
 	printf("\n\n");	
 }
 
+/*	This function attempts to detect a win around the last placed chip  */
 int scanBoard(char **board, int rows, int cols, short x, short y, int player){
 	int count, i, startRow, startCol;
 	char c;
@@ -220,7 +224,7 @@ int scanBoard(char **board, int rows, int cols, short x, short y, int player){
 		startCol = y - x;
 	}
 	
-	while (startRow < rows && startCol < cols){	// Scan
+	while (startRow < rows && startCol < cols){	// Execute scan
 		if (board[startRow][startCol] == c){
 			count++;
 			if (count == 4)
@@ -255,7 +259,7 @@ int scanBoard(char **board, int rows, int cols, short x, short y, int player){
 		startCol = y + x;
 	}
 	
-	while (startRow < rows && startCol >= 0){	// Scan
+	while (startRow < rows && startCol >= 0){	// Execute scan
 		if (board[startRow][startCol] == c){
 			count++;
 			if (count == 4)
